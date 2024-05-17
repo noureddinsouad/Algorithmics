@@ -1,0 +1,313 @@
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
+
+public class Heap<Key extends Comparable<Key>> {
+
+    private Key[] keys;
+
+    private static int capacite = 30;
+
+    private int cursor = 1; //we start from 1; // here you can use a resizable array
+
+    public Heap(){
+        keys = (Key[]) new Comparable[capacite];
+    }
+
+    public void insert(Key key){
+         keys[cursor] = key;
+         swim(cursor);
+         cursor++;
+    }
+
+    public Key delMax(){
+//        if(cursor2 )
+//        if(curso)
+        Key max = keys[1];
+        keys[1] = keys[cursor-1];
+        sink(1);
+        cursor --;
+        return max;
+    }
+
+    private void swim(int k){
+        while(k>1 && !isLess(k, k/2)){
+            exchange(k,k/2);
+            k=k/2;
+        }
+    }
+
+    private void sink(int k){
+        while(2*k < cursor){
+            int j = 2*k;
+            if(j+1 < cursor && isLess(j,j+1)) j++;
+            if(isLess(j, k)){
+                break;
+            }
+            exchange(k,j);
+            k=j;
+        }
+    }
+
+    private void exchange(int k, int j){
+        Key swap = keys[k];
+        keys[k] = keys[j];
+        keys[j] = swap;
+    }
+
+    private boolean isLess(int k, int j){
+        return keys[k].compareTo(keys[j]) < 0;
+    }
+
+    private void printHeap(){
+        for (int i = 0; i < cursor; i++) {
+            System.out.println(keys[i]);
+        }
+    }
+
+
+    public static void main(String[] args) {
+      Heap heap = new Heap<Integer>();
+      heap.insert(1);
+        heap.insert(2);
+        heap.insert(7);
+        heap.insert(9);
+        heap.insert(5);
+        heap.insert(111);
+        heap.printHeap();
+
+
+        System.out.println("heap.delMax()");
+        System.out.println(heap.delMax());
+        heap.printHeap();
+
+        System.out.println("heap.delMax()");
+        System.out.println(heap.delMax());
+        heap.printHeap();
+
+        System.out.println("heap.delMax()");
+        System.out.println(heap.delMax());
+        heap.printHeap();
+
+        System.out.println("heap.delMax()");
+        System.out.println(heap.delMax());
+        heap.printHeap();
+
+        System.out.println("heap.delMax()");
+        System.out.println(heap.delMax());
+        heap.printHeap();
+    }
+
+}
+
+
+
+
+
+
+
+
+
+/*
+ * Search, insertion, finding the minimum, finding the maximum, floor, ceiling, rank, select, delete the minimum, delete the maximum, delete, and range count operations all take time proportional to the height of the tree, in the worst case.
+ * */
+class BSTr<K extends Comparable,V> {
+
+    private Node root;
+
+    public BSTr(Node node) {
+        this.root = node;
+    }
+
+    public void insert(Node node) {
+        insert(node, root);
+    }
+
+    private Node insert(Node node, Node subtree) {
+
+        if (subtree == null) return node;
+        int cmp = subtree.key.compareTo(node.key);
+        if (cmp < 0) {
+            subtree.right = insert(node, subtree.right);
+        } else if (cmp > 0) {
+            subtree.left = insert(node, subtree.left);
+        } else if (subtree.key.compareTo(node.key) == 0) {
+            subtree.value = node.value;
+        }
+        return subtree;
+    }
+
+    public Node search(K key) {
+        return search(root, key);
+    }
+
+    private Node search(Node subtree, K key) {
+        if (subtree == null) throw new NotFoundException("key not found in the tree");
+        int cmp = subtree.key.compareTo(key);
+        if (cmp < 0) {
+            search(subtree.right, key);
+        }
+        else if (cmp > 0) search(subtree.right, key);;
+        return subtree;
+    }
+
+
+    class Node {
+        private Node left;
+        private Node right;
+        private K key;
+        private V value;
+        private int size;          // number of
+
+        public Node(K key, V value, int size) {
+            this.key = key;
+            this.value = value;
+            this.size = size;
+        }
+
+        public Node getLeft() {
+            return left;
+        }
+
+        public void setLeft(Node left) {
+            this.left = left;
+        }
+
+        public Node getRight() {
+            return right;
+        }
+
+        public void setRight(Node right) {
+            this.right = right;
+        }
+    }
+}
+
+class RDBLBtr<K extends Comparable,V> {
+    private static final String RED = "RED";
+    private static final String BLACK = "BLACK";
+    private Node root;
+
+    public RDBLBtr(Node node){
+        this.root = node;
+    }
+
+    public void insert(Node node){
+        insert(node, root);
+    }
+
+    public Node insert(Node node, Node subtree){
+        if (subtree == null) return node;
+        int cmp = subtree.key.compareTo(node.key);
+        if (cmp < 0) {
+            subtree.right = insert(node, subtree.right);
+        } else if (cmp > 0) {
+            subtree.left = insert(node, subtree.left);
+        } else if (subtree.key.compareTo(node.key) == 0) {
+            subtree.value = node.value;
+        }
+
+        if (isRed(subtree.right) && !isRed(subtree.left))      subtree = rotateLeft(subtree);
+        if (isRed(subtree.left)  &&  isRed(subtree.left.left)) subtree = rotateRight(subtree);
+        if (isRed(subtree.left)  &&  isRed(subtree.right))     flipColors(subtree);
+        return subtree;
+    }
+
+    private boolean isRed(Node x) {
+        if (x == null) return false;
+        return x.color == RED;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //pass the parent
+    private Node rotateLeft(Node node){
+        Node x = node.right;
+        node.right = x.left;
+        x.color = node.color;
+        x.left = node;
+        node.color = RED;
+        return x;
+    }
+
+    private void flipColors(Node node){
+        node.left.color = BLACK;
+        node.right.color = BLACK;
+    }
+
+    private Node rotateRight(Node node){
+        Node x = node.left;
+        node.left = x.right;
+        x.right = node;
+        x.color = node.color;
+        node.color = RED;
+        return x;
+    }
+
+
+    class Node {
+        private Node left;
+        private Node right;
+        private K key;
+        private V value;
+        private int size;          // number of
+        private String color = RED;
+
+        public Node(K key, V value, int size) {
+            this.key = key;
+            this.value = value;
+            this.size = size;
+        }
+
+        public Node getLeft() {
+            return left;
+        }
+
+        public void setLeft(Node left) {
+            this.left = left;
+        }
+
+        public Node getRight() {
+            return right;
+        }
+
+        public void setRight(Node right) {
+            this.right = right;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
